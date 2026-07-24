@@ -1,6 +1,6 @@
 import axiosInstance from "@/Api/axiosInstance";
 import { endpoints } from "@/Api/endpoints";
-import type { ApiEnvelope, Student } from "@/Types";
+import type { ApiEnvelope, Student, StudentDeletion } from "@/Types";
 
 export const StudentService = {
   fetchAll: async (): Promise<Student[]> => {
@@ -36,7 +36,10 @@ export const StudentService = {
     return res.data.data;
   },
 
-  remove: async (id: string): Promise<void> => {
-    await axiosInstance.delete(endpoints.student.byId(id));
+  remove: async (id: string): Promise<StudentDeletion> => {
+    const res = await axiosInstance.delete<ApiEnvelope<StudentDeletion>>(
+      endpoints.student.byId(id)
+    );
+    return res.data.data;
   },
 };

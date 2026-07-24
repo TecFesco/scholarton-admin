@@ -31,9 +31,27 @@ export default function Students() {
 
   const remove = useMutation({
     mutationFn: (id: string) => StudentService.remove(id),
-    onSuccess: () => {
-      toast.success("Student deleted.");
+    onSuccess: (result) => {
+      const alsoRemoved = [
+        result.deleted_enrollments &&
+          `${result.deleted_enrollments} enrolment${
+            result.deleted_enrollments === 1 ? "" : "s"
+          }`,
+        result.deleted_submissions &&
+          `${result.deleted_submissions} submission${
+            result.deleted_submissions === 1 ? "" : "s"
+          }`,
+      ].filter(Boolean);
+
+      toast.success(
+        alsoRemoved.length
+          ? `Student deleted, along with ${alsoRemoved.join(" and ")}.`
+          : "Student deleted."
+      );
+      // Enrolment counts on project cards are derived from the students query,
+      // and submissions feed the mentor views — refresh both.
       queryClient.invalidateQueries({ queryKey: queryKeys.students });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects });
       setPendingDelete(null);
     },
     onError: (err) => {
@@ -163,9 +181,9 @@ export default function Students() {
         open={pendingDelete !== null}
         onOpenChange={(open) => !open && setPendingDelete(null)}
         title="Delete student?"
-        description={`This permanently removes ${
+        description={`This permanently deletes ${
           pendingDelete ? fullName(pendingDelete) : "this student"
-        } from Scholarton. Their Firebase Auth account is not affected.`}
+        }, their sign-in account, and all their enrolments and submissions. They will no longer be able to log in. This cannot be undone.`}
         confirmLabel="Delete"
         destructive
         pending={remove.isPending}

@@ -1,6 +1,6 @@
 import axiosInstance from "@/Api/axiosInstance";
 import { endpoints } from "@/Api/endpoints";
-import type { ApiEnvelope, Mentor } from "@/Types";
+import type { ApiEnvelope, Mentor, MentorDeletion } from "@/Types";
 
 export const MentorService = {
   fetchAll: async (): Promise<Mentor[]> => {
@@ -35,7 +35,10 @@ export const MentorService = {
     return res.data.data;
   },
 
-  remove: async (id: string): Promise<void> => {
-    await axiosInstance.delete(endpoints.mentor.byId(id));
+  remove: async (id: string): Promise<MentorDeletion> => {
+    const res = await axiosInstance.delete<ApiEnvelope<MentorDeletion>>(
+      endpoints.mentor.byId(id)
+    );
+    return res.data.data;
   },
 };

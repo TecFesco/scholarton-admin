@@ -127,3 +127,19 @@ export interface ApiEnvelope<T> {
   message?: string;
   error?: string;
 }
+
+/** What DELETE /student/:id actually tore down — the API cascades. */
+export interface StudentDeletion {
+  student_id: string;
+  deleted_enrollments: number;
+  deleted_submissions: number;
+  /** False when there was no sign-in account left to revoke. */
+  auth_deleted: boolean;
+}
+
+/** DELETE /mentor/:id. Projects are deliberately left standing. */
+export interface MentorDeletion {
+  mentor_id: string;
+  auth_deleted: boolean;
+  orphaned_projects: number;
+}

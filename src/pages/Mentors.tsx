@@ -43,8 +43,14 @@ export default function Mentors() {
 
   const remove = useMutation({
     mutationFn: (id: string) => MentorService.remove(id),
-    onSuccess: () => {
-      toast.success("Mentor deleted.");
+    onSuccess: (result) => {
+      toast.success(
+        result.orphaned_projects
+          ? `Mentor deleted. ${result.orphaned_projects} project${
+              result.orphaned_projects === 1 ? " is" : "s are"
+            } now unassigned.`
+          : "Mentor deleted."
+      );
       queryClient.invalidateQueries({ queryKey: queryKeys.mentors });
       setPendingDelete(null);
     },
@@ -188,9 +194,9 @@ export default function Mentors() {
         open={pendingDelete !== null}
         onOpenChange={(open) => !open && setPendingDelete(null)}
         title="Delete mentor?"
-        description={`This permanently removes ${
+        description={`This permanently deletes ${
           pendingDelete ? fullName(pendingDelete) : "this mentor"
-        } from Scholarton. Projects they own are not deleted and will show as unassigned.`}
+        } and their sign-in account. They will no longer be able to log in. Projects they own are kept — students stay enrolled — but will show as unassigned. This cannot be undone.`}
         confirmLabel="Delete"
         destructive
         pending={remove.isPending}
