@@ -3,37 +3,39 @@ import {
   Users,
   UserCog,
   FolderKanban,
-  LogOut,
-  GraduationCap,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { NavLink } from "@/components/NavLink";
+import { BrandLogo } from "@/components/BrandLogo";
+import { SidebarProfileMenu } from "@/components/SidebarProfileMenu";
 import { useAuth } from "@/Context/AuthContext";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { useAdminName } from "@/hooks/useAdminName";
 
 const items = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Students", url: "/students", icon: Users },
-  { title: "Mentors", url: "/mentors", icon: UserCog },
-  { title: "Projects", url: "/projects", icon: FolderKanban },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, end: true },
+  { title: "Students", url: "/students", icon: Users, end: false },
+  { title: "Mentors", url: "/mentors", icon: UserCog, end: false },
+  { title: "Projects", url: "/projects", icon: FolderKanban, end: false },
 ];
 
-export function AppSidebar() {
-  const { open } = useSidebar();
-  const { signOut } = useAuth();
+/** First letters of the first two words, e.g. "Pelumi Aniyajuwon" → "PA". */
+function initialsFor(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = parts.slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "");
+  return letters.join("") || "?";
+}
+
+interface AppSidebarProps {
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
+}
+
+export function AppSidebar({ menuOpen, setMenuOpen }: AppSidebarProps) {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const name = useAdminName();
 
   const handleLogout = async () => {
     try {
@@ -46,60 +48,39 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-sidebar-border" collapsible="icon">
-      <SidebarContent>
-        <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
-            <GraduationCap className="h-5 w-5 text-primary-foreground" />
-          </div>
-          {open && (
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-sidebar-foreground">
-                Scholarton
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                Admin Console
-              </p>
-            </div>
-          )}
-        </div>
+    <aside
+      className={`bg-[#FAFAFA] dark:bg-surface-dark-card w-64 h-screen fixed md:sticky top-0 p-6 transition-transform border-r border-r-btn_border_color dark:border-r-surface-dark-elev flex flex-col z-50 ${
+        menuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      }`}
+    >
+      <div className="flex items-start mb-8">
+        <BrandLogo className="w-32" />
+      </div>
 
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink
-                      to={item.url}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      activeClassName="bg-sidebar-primary text-sidebar-primary-foreground font-medium hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
-                    >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {open && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      <nav className="flex flex-col items-start space-y-1 flex-grow overflow-y-auto">
+        {items.map((item) => (
+          <NavLink
+            key={item.title}
+            to={item.url}
+            end={item.end}
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center text-sm font-semibold p-3 w-full rounded-xl transition-all text-gray-500 dark:text-ink-dark-mid hover:bg-gray-50 dark:hover:bg-white/5"
+            activeClassName="bg-blue-50 dark:bg-btn_bg_dark/20 text-[#3b82f6] dark:text-btn_bg_dark shadow-sm hover:bg-blue-50 dark:hover:bg-btn_bg_dark/20"
+          >
+            <item.icon className="mr-3 h-5 w-5 opacity-80" />
+            <span className="flex-1">{item.title}</span>
+          </NavLink>
+        ))}
+      </nav>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={handleLogout}
-              tooltip="Sign out"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-destructive transition-colors hover:bg-destructive/10 hover:text-destructive"
-            >
-              <LogOut className="h-5 w-5 shrink-0" />
-              {open && <span>Sign out</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-surface-dark-elev">
+        <SidebarProfileMenu
+          name={name}
+          email={user?.email ?? undefined}
+          initials={initialsFor(name)}
+          onLogout={handleLogout}
+        />
+      </div>
+    </aside>
   );
 }

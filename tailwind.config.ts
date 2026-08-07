@@ -21,6 +21,24 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+
+        // Literal brand tokens ported verbatim from the main Scholarton app's
+        // tailwind.config so shared UI (the sidebar, and the Phase-4 project POV
+        // screens) can reuse its exact classes and read identically.
+        btn_bg: "#3b82f6",
+        btn_bg_dark: "#0179C8",
+        secondary_text_color: "#82818B",
+        btn_border_color: "#E2E8F0",
+        surface: {
+          dark: "#0F172A",
+          "dark-card": "#1E293B",
+          "dark-elev": "#334155",
+        },
+        ink: {
+          "dark-hi": "#F1F5F9",
+          "dark-mid": "#CBD5E1",
+          "dark-lo": "#94A3B8",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

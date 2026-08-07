@@ -25,12 +25,32 @@ export const MentorService = {
     return res.data.data;
   },
 
-  // Same ownership guard as students — MentorService.updateOne requires
-  // mentor_id === the caller's uid. See README "Known API gaps".
+  // Admin add-mentor: provisions a Firebase Auth login + profile.
+  provision: async (
+    payload: Partial<Mentor> & { email: string; password: string }
+  ): Promise<Mentor> => {
+    const res = await axiosInstance.post<ApiEnvelope<Mentor>>(
+      endpoints.mentor.provision,
+      payload
+    );
+    return res.data.data;
+  },
+
+  // Admin edits any mentor (the API's update guard is owner-OR-admin).
   update: async (id: string, patch: Partial<Mentor>): Promise<Mentor> => {
     const res = await axiosInstance.put<ApiEnvelope<Mentor>>(
       endpoints.mentor.byId(id),
       patch
+    );
+    return res.data.data;
+  },
+
+  // Approve or revoke a mentor. `approved` is admin-only server-side, so this
+  // only takes effect for an admin caller.
+  setApproved: async (id: string, approved: boolean): Promise<Mentor> => {
+    const res = await axiosInstance.put<ApiEnvelope<Mentor>>(
+      endpoints.mentor.byId(id),
+      { approved }
     );
     return res.data.data;
   },

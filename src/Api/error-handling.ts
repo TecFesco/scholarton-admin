@@ -19,6 +19,8 @@ export function signInErrorMessage(error: unknown): string {
       return "Too many failed attempts. Please try again later.";
     case "auth/network-request-failed":
       return "Network error. Check your connection and try again.";
+    case "admin/not-authorized":
+      return "This account doesn't have admin access to the console.";
     default:
       return "Sign-in failed. Please try again.";
   }

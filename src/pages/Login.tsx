@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,10 +51,8 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <GraduationCap className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">Scholarton Admin</h1>
+          <BrandLogo className="mb-4 h-9" />
+          <h1 className="text-2xl font-bold tracking-tight">Admin Console</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to manage students, mentors and projects.
           </p>

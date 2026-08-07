@@ -2,6 +2,7 @@ import { Clock, GraduationCap, Layers, Star, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { fullName } from "@/Utils/format";
+import { difficultyStyles } from "@/Utils/projectDisplay";
 import type { Mentor, Project } from "@/Types";
 
 interface ProjectCardProps {
@@ -10,24 +11,16 @@ interface ProjectCardProps {
   /** Enrolled students, counted client-side — see Utils/format.enrolmentCounts. */
   enrolled?: number;
   actions?: React.ReactNode;
+  /** Opens the project detail view. Makes the whole card clickable when set. */
+  onOpen?: () => void;
 }
-
-// Same three-tier vocabulary as the main app's ChooseProjectCard, restated
-// with our tokens so it tracks dark mode.
-const difficultyStyles: Record<string, string> = {
-  Beginner:
-    "bg-success/10 text-success border-success/20 dark:bg-success/15",
-  Intermediate:
-    "bg-warning/10 text-warning border-warning/20 dark:bg-warning/15",
-  Advanced:
-    "bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/15",
-};
 
 export function ProjectCard({
   project,
   mentor,
   enrolled,
   actions,
+  onOpen,
 }: ProjectCardProps) {
   const difficulty = project.difficulty ?? project.project_level;
   const phaseCount = project.phases?.length ?? 0;
@@ -43,7 +36,22 @@ export function ProjectCard({
       : null;
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-shadow duration-300 hover:shadow-lg">
+    <div
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (onOpen && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className={cn(
+        "flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-shadow duration-300 hover:shadow-lg",
+        onOpen &&
+          "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      )}
+    >
       <div className="mb-2 flex items-start justify-between gap-3">
         <h3 className="text-lg font-bold leading-tight text-foreground">
           {project.title}
@@ -130,7 +138,15 @@ export function ProjectCard({
         </Badge>
       </div>
 
-      {actions && <div className="mt-auto flex gap-2 pt-2">{actions}</div>}
+      {actions && (
+        // Stop clicks on the action buttons from also opening the detail view.
+        <div
+          className="mt-auto flex gap-2 pt-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

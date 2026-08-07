@@ -1,6 +1,6 @@
 import axiosInstance from "@/Api/axiosInstance";
 import { endpoints } from "@/Api/endpoints";
-import type { ApiEnvelope, Project } from "@/Types";
+import type { ApiEnvelope, Project, StudentProject } from "@/Types";
 
 export const ProjectService = {
   fetchAll: async (): Promise<Project[]> => {
@@ -31,6 +31,26 @@ export const ProjectService = {
       patch
     );
     return res.data.data;
+  },
+
+  // Publish / unpublish shortcut. Admin bypasses the mentor-approval gate.
+  setPublish: async (id: string, publish: boolean): Promise<Project> => {
+    const res = await axiosInstance.put<ApiEnvelope<Project>>(
+      endpoints.project.byId(id),
+      { publish }
+    );
+    return res.data.data;
+  },
+
+  // A student's enrolments (each carries the project + phase_states) — used by
+  // the admin's student-POV view to show one student's progress on a project.
+  fetchEnrolledByStudent: async (
+    studentId: string
+  ): Promise<StudentProject[]> => {
+    const res = await axiosInstance.get<ApiEnvelope<StudentProject[]>>(
+      endpoints.project.enrolledByStudent(studentId)
+    );
+    return res.data.data ?? [];
   },
 
   remove: async (id: string): Promise<void> => {

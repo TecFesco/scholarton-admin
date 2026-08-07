@@ -42,7 +42,9 @@ export default function Dashboard() {
       const bTime = toDate(b.created_at)?.getTime() ?? 0;
       return bTime - aTime;
     });
-    return list.slice(0, 6);
+    // Three fills the xl:grid-cols-3 row exactly; the full list lives on the
+    // Projects page.
+    return list.slice(0, 3);
   }, [projects.data]);
 
   const failure = students.error ?? mentors.error ?? projects.error;
@@ -119,6 +121,7 @@ export default function Dashboard() {
               <ProjectCard
                 key={project.project_id}
                 project={project}
+                onOpen={() => navigate(`/projects/${project.project_id}`)}
                 mentor={
                   project.mentor_id
                     ? mentorsById.get(project.mentor_id)

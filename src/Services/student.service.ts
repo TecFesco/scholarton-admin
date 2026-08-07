@@ -25,6 +25,18 @@ export const StudentService = {
     return res.data.data;
   },
 
+  // Admin add-student: provisions a Firebase Auth login + profile so the new
+  // student can actually sign in with the temp password the admin sets.
+  provision: async (
+    payload: Partial<Student> & { email: string; password: string }
+  ): Promise<Student> => {
+    const res = await axiosInstance.post<ApiEnvelope<Student>>(
+      endpoints.student.provision,
+      payload
+    );
+    return res.data.data;
+  },
+
   // Heads-up: StudentService.updateOne on the API rejects unless
   // student_id === the caller's uid, so this 401s for an admin editing
   // somebody else. Wired up so it works the moment that guard is relaxed.

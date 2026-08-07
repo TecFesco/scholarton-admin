@@ -12,6 +12,7 @@ import Dashboard from "@/pages/Dashboard";
 import Students from "@/pages/Students";
 import Mentors from "@/pages/Mentors";
 import Projects from "@/pages/Projects";
+import ProjectDetail from "@/pages/ProjectDetail";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -74,6 +75,14 @@ export default function App() {
                 element={
                   <AdminPage>
                     <Projects />
+                  </AdminPage>
+                }
+              />
+              <Route
+                path="/projects/:id"
+                element={
+                  <AdminPage>
+                    <ProjectDetail />
                   </AdminPage>
                 }
               />

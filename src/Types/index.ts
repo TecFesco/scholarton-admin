@@ -37,6 +37,13 @@ export interface Phase {
   isLocked: boolean;
 }
 
+export interface PhaseProgress {
+  status?: PhaseStatus;
+  progress?: number;
+  started_at?: string;
+  completed_at?: string;
+}
+
 export interface StudentProject {
   id?: string;
   project_id: string;
@@ -47,6 +54,11 @@ export interface StudentProject {
   progress?: number;
   phase?: string | null;
   mentor_name?: string;
+  // Per-student phase status, keyed by phase id — overlaid on the project's
+  // phases for the admin's student-POV progress view.
+  phase_states?: Record<string, PhaseProgress>;
+  // The API attaches the full project (with phases) to each enrolment.
+  project?: Project;
   [key: string]: unknown;
 }
 
@@ -62,8 +74,8 @@ export interface Student {
   dob?: string;
   gender?: string;
   address?: string;
-  // NOTE: the API does not currently stamp created_at on student creation —
-  // see the caveat in README.md. Treated as optional everywhere it is read.
+  // Stamped by the API on signup (ISO string); older records were backfilled
+  // from Firestore createTime. Still optional — a doc could predate both.
   created_at?: string;
   updated_at?: string;
   // Attached by the API's fetchAll/findById: the student's enrolments.
@@ -84,6 +96,8 @@ export interface Mentor {
   avatar?: string;
   phone_number?: string;
   email_verified?: boolean;
+  // Admin approval gate — only an approved mentor can publish. Absent = pending.
+  approved?: boolean;
   created_at?: string;
   updated_at?: string;
   [key: string]: unknown;

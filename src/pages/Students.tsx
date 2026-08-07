@@ -1,11 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash2, BadgeCheck, BadgeAlert } from "lucide-react";
+import { Trash2, BadgeCheck, BadgeAlert, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { SearchInput } from "@/components/SearchInput";
 import { PersonCell } from "@/components/PersonCell";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AddUserDialog } from "@/components/AddUserDialog";
+import { Pagination } from "@/components/Pagination";
+import { usePagination } from "@/hooks/usePagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,6 +31,7 @@ export default function Students() {
   const { data, isLoading, error } = useStudents();
   const [search, setSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState<Student | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
 
   const remove = useMutation({
     mutationFn: (id: string) => StudentService.remove(id),
@@ -70,6 +74,12 @@ export default function Students() {
     );
   }, [data, search]);
 
+  const pagination = usePagination(filtered, 10);
+  const { setPage } = pagination;
+  useEffect(() => {
+    setPage(1);
+  }, [search, setPage]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -81,11 +91,17 @@ export default function Students() {
             All enrolled learners and their current projects.
           </p>
         </div>
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search students…"
-        />
+        <div className="flex items-center gap-3">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search students…"
+          />
+          <Button onClick={() => setAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -125,7 +141,7 @@ export default function Students() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((student) => {
+              pagination.pageItems.map((student) => {
                 const projectCount = student.student_Project?.length ?? 0;
                 return (
                   <TableRow key={student.student_id}>
@@ -176,6 +192,20 @@ export default function Students() {
           </TableBody>
         </Table>
       </div>
+
+      {!isLoading && filtered.length > 0 && (
+        <Pagination
+          page={pagination.page}
+          pageCount={pagination.pageCount}
+          onPageChange={pagination.setPage}
+          from={pagination.from}
+          to={pagination.to}
+          total={pagination.total}
+          noun="student"
+        />
+      )}
+
+      <AddUserDialog role="student" open={addOpen} onOpenChange={setAddOpen} />
 
       <ConfirmDialog
         open={pendingDelete !== null}
